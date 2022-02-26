@@ -1,6 +1,6 @@
 node{     
     stage('SCM Checkout'){
-        git branch: 'main', credentialsId: 'GitHubCredentials', url: 'https://github.com/AGunasekhar/demo-1.git'  
+        git branch: 'main', credentialsId: 'git', url: 'https://github.com/AGunasekhar/demo-1.git'  
     }
     
     stage(" Maven Clean Package"){
@@ -10,15 +10,7 @@ node{
     stage('Build Docker Image'){
         sh 'docker build -t guna0501/demo .'
     }
-    
-    stage('Push Docker Image'){
-        withCredentials([string(credentialsId: 'DOKCER_HUB_PASSWORD', variable: 'DOKCER_HUB_PASSWORD')]) {
-          bat "docker login -u guna0501 -p ${DOKCER_HUB_PASSWORD}"
-        }
-        sh 'docker push guna0501/demo'
-     }
-     
-      stage("Deploy To Kuberates Cluster"){
-        sh 'kubectl apply -f webapp.yml'
-      }  
+    stage('start application'){
+        sh 'docker run -itd --name demoapp -p 8081:8080 guna0501/demo'
+    }
 }
